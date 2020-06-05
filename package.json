@@ -5,8 +5,9 @@
   "description": "Template to create sipmle express server using Typescript and Jest as test framework",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon -r dotenv/config src/server.ts",
+    "dev": "nodemon",
     "test": "jest",
+    "test:watch": "jest --watch",
     "build": "tsc",
     "start": "tsc && node dist/server.js"
   },
