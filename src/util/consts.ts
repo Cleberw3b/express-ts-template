@@ -1,13 +1,32 @@
+let isTest = false
+let isProd = false
+let isDev = false
+
+/**
+ * Verifies what enviroment we are working with
+ */
+
+switch ( process.env.NODE_ENV ) {
+    case "test":
+        isTest = true
+        break
+    case "production":
+        isProd = true
+        break
+    default:
+        isDev = true
+}
+
 /**
  * Exports all consts that application need
  */
 
-export const IS_DEVELOPMENT_ENV = process.env.NODE_ENV === "development"
+export const IS_DEVELOPMENT_ENV = isDev
 
-export const IS_PRODUCTION_ENV = process.env.NODE_ENV === "production"
+export const IS_PRODUCTION_ENV = isProd
 
-export const IS_TEST_ENV = process.env.NODE_ENV === "test"
+export const IS_TEST_ENV = isTest
 
-export const DEFAULT_PORT = process.env.PORT || "8000"
+export const DEFAULT_PORT = process.env.PORT || "3000"
 
 export const ENV_VARIABLE_EXAMPLE = process.env.ENV_VARIABLE_EXAMPLE
