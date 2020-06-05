@@ -5,13 +5,11 @@ import { DEFAULT_PORT } from "./util/consts"
 /**
  * Create HTTP server.
  */
-
 const server = http.createServer( app )
 
 /**
  * Event listener for HTTP server "error" event.
  */
-
 const onError = ( error: any ) => {
   if ( error.syscall !== "listen" ) {
     throw error
@@ -34,7 +32,6 @@ const onError = ( error: any ) => {
 /**
  * Event listener for HTTP server "listening" event.
  */
-
 const onListening = () => {
   console.debug( "Listening on port " + DEFAULT_PORT )
 }
@@ -42,17 +39,14 @@ const onListening = () => {
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen( DEFAULT_PORT )
 
 /**
  * Add on error handle
  */
-
 server.on( "error", onError )
 
 /**
  * Add on error handle
  */
-
 server.on( "listening", onListening )

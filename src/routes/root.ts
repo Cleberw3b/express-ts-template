@@ -1,10 +1,13 @@
-import express, { Response } from 'express'
-import { ENV_VARIABLE_EXAMPLE } from '../util/consts'
+import express, { Request, Response, NextFunction } from 'express'
 const router = express.Router()
 
-/* GET root content. */
-router.get( '/', ( res: Response ) => {
-  res.send( { string: ENV_VARIABLE_EXAMPLE } )
+/**
+ * GET root content.
+ */
+router.get( '/', ( req: Request, res: Response, next: NextFunction ) => {
+  res
+    .status( 200 )
+    .send( "Hello World" )
 } )
 
 export { router }
