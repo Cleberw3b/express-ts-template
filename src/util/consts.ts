@@ -30,3 +30,5 @@ export const IS_TEST_ENV = isTest
 export const DEFAULT_PORT = process.env.PORT || "3000"
 
 export const ENV_VARIABLE_EXAMPLE = process.env.ENV_VARIABLE_EXAMPLE
+
+export const JWT_SECRET = process.env.JWT_SECRET || "mysuperdupersecret"

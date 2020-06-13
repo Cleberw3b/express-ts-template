@@ -1,17 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express'
 import logger from 'morgan'
+import { } from "http-errors"
 import * as routes from './routes/routes'
-import { createHttpError, errorMiddleware } from "./util/exceptions/httpException"
 import { IS_DEVELOPMENT_ENV, DEFAULT_PORT } from './util/consts'
-
-/**
- * If Developement it loads enviroment variables from .env file
- */
-if ( IS_DEVELOPMENT_ENV ) {
-    import( "dotenv" ).then( dotenv => {
-        dotenv.config()
-    } )
-}
+import * as middlewares from './util/middlewares'
 
 /**
  * Create a express app
@@ -21,42 +13,47 @@ const app = express()
 /**
  * Middleware to concise output colored responses status
  */
-if ( IS_DEVELOPMENT_ENV ) {
-    app.use( logger( 'dev' ) )
-}
+if (IS_DEVELOPMENT_ENV) app.use(logger('dev'))
 
 /**
  * Middleware to parse data to Json
  */
-app.use( express.json() )
+app.use(express.json())
 
 /**
  * Middleware to parse only url encoded
  */
-app.use( express.urlencoded( { extended: false } ) )
+app.use(express.urlencoded({ extended: false }))
+
+/**
+ * CORS middleware
+ */
+app.use(middlewares.corsMiddleware)
+
+/**
+ * Auth middleware
+ */
+app.use(middlewares.authMiddleware)
 
 /**
  * Define routes and their handles
  */
-app.use( '/', routes.root )
-app.use( '/healthcheck', routes.healthCheck )
+app.use('/', routes.root)
+app.use('/healthcheck', routes.healthCheck)
 
 /**
  * Middleware to catch 404 and forward to error handler
  */
-app.use( ( req: Request, res: Response, next: NextFunction ) => {
-    next( createHttpError( 404 ) )
-} )
+app.use(middlewares.notFountMiddleware)
 
 /**
  * Middleware to handle error
  */
-app.use( errorMiddleware )
-
+app.use(middlewares.errorMiddleware)
 
 /**
  * Get default port and store in Express.
  */
-app.set( "port", DEFAULT_PORT )
+app.set("port", DEFAULT_PORT)
 
 export default app
