@@ -1,6 +1,13 @@
 import app from "./expressConfig"
 import http from "http"
 import { DEFAULT_PORT } from "./util/consts"
+import { loadDatabase } from "./repository/mongoConnector"
+
+/**
+ * Init
+ */
+
+loadDatabase( app )
 
 /**
  * Create HTTP server.
