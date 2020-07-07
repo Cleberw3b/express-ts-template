@@ -1,34 +1,29 @@
-import app from "./expressConfig"
-import http from "http"
-import { DEFAULT_PORT } from "./util/consts"
-import { loadDatabase } from "./repository/mongoConnector"
+import app from './expressConfig'
+import http from 'http'
+import { DEFAULT_PORT } from './utils/consts'
+import { loadDatabase, closeMongoConnection } from './utils/db/mongoConnector'
 
-/**
- * Init
- */
-
+// Init dependencies
 loadDatabase( app )
 
-/**
- * Create HTTP server.
- */
+// Create HTTP server.
 const server = http.createServer( app )
 
-/**
- * Event listener for HTTP server "error" event.
- */
+
+// Event listener for HTTP server 'error' event.
 const onError = ( error: any ) => {
-  if ( error.syscall !== "listen" ) {
+  closeMongoConnection()
+  if ( error.syscall !== 'listen' ) {
     throw error
   }
   // handle specific listen errors with friendly messages
   switch ( error.code ) {
-    case "EACCES":
-      console.error( "Port " + DEFAULT_PORT + " requires elevated privileges" )
+    case 'EACCES':
+      console.error( 'Port ' + DEFAULT_PORT + ' requires elevated privileges' )
       process.exit( 1 )
       break
-    case "EADDRINUSE":
-      console.error( "Port " + DEFAULT_PORT + " is already in use" )
+    case 'EADDRINUSE':
+      console.error( 'Port ' + DEFAULT_PORT + ' is already in use' )
       process.exit( 1 )
       break
     default:
@@ -36,24 +31,34 @@ const onError = ( error: any ) => {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
+// Event listener for HTTP server 'listening' event.
 const onListening = () => {
-  console.debug( "Listening on port " + DEFAULT_PORT )
+  console.debug( 'Listening on port ' + DEFAULT_PORT )
 }
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-server.listen( DEFAULT_PORT )
 
-/**
- * Add on error handle
- */
-server.on( "error", onError )
+// Event listener for HTTP server 'close' event.
+const onClose = async () => {
+  await closeMongoConnection()
+  console.debug( 'Server shutdown' )
+}
 
-/**
- * Add on error handle
- */
-server.on( "listening", onListening )
+
+// Await for app to be ready before stating listening
+//Listen on provided port, on all network interfaces.
+app.on( 'ready', () => {
+  server.listen( DEFAULT_PORT )
+} )
+
+
+// Add on error handle
+server.on( 'error', onError )
+
+
+// Add on listening handle
+server.on( 'listening', onListening )
+
+
+
+// Add on close handle
+server.on( 'close', onClose )
