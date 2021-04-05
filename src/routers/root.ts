@@ -1,14 +1,20 @@
-import express, { Request, Response, NextFunction } from 'express'
-const router = express.Router()
+//
+//      Rota Raiz
+//
+
+import { Router } from 'express'
+import { Request, Response, NextFunction } from 'express-serve-static-core'
+import { permanentRedirect } from '../utils/httpStatus'
+const router = Router()
 
 /**
- * GET root content.
+ * GET -> Redirecionando para o health check.
  */
 router.get( '/', ( req: Request, res: Response, next: NextFunction ) => {
-  res
-    .status( 200 )
-    .send( "Hello World" )
+
+  res.writeHead( permanentRedirect.status, {
+    Location: '/healthcheck'
+  } ).end()
 } )
 
-export { router }
 export { router as rootRouter }

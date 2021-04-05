@@ -1,11 +1,13 @@
 //
-//     Lista de constantes usado no sistema
+//     Constants
 //
+
+import * as path from 'path'
 
 let isTest = false
 let isProd = false
 let isDev = false
-let mongoDBUrlConnection = ''
+let mongoDbName = process.env.MONGO_DB_NAME
 
 /**
  * Verifies what environment we are working with
@@ -13,15 +15,14 @@ let mongoDBUrlConnection = ''
 switch ( process.env.NODE_ENV ) {
     case 'test':
         isTest = true
-        mongoDBUrlConnection = 'mongodb://test'
+        mongoDbName = 'dbname-prod'
         break
     case 'production':
         isProd = true
-        mongoDBUrlConnection = 'mongodb://prod'
+        mongoDbName = 'dbname-prod'
         break
     default:
         isDev = true
-        mongoDBUrlConnection = `mongodb+srv://${ process.env.MONGO_USER }:${ process.env.MONGO_PASSWORD }@${ process.env.MONGO_URL }/${ process.env.MONGO_DB_NAME }?retryWrites=true&w=majority`
 }
 
 /**
@@ -36,6 +37,12 @@ export const IS_TEST_ENV = isTest
 
 export const DEFAULT_PORT = process.env.PORT || '8080'
 
-export const MONGO_DATA_BASE_NAME = process.env.MONGO_DB_NAME
+export const ROOT_DIR = path.resolve( process.cwd() )
 
-export const MONGO_DB_URL_CONNECTION = mongoDBUrlConnection
+export const ENABLE_LOG = process.env.ENABLE_LOG || 0
+
+export const MONGO_USER = process.env.MONGO_USER
+
+export const MONGO_PASSWORD = process.env.MONGO_PASSWORD
+
+export const MONGO_DB_NAME = mongoDbName

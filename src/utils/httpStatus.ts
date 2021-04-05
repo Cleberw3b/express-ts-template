@@ -2,11 +2,13 @@
 //     Declara códigos de HttpStatus suportados pelo VPP-Aviso
 //
 
+import { AppError } from './errors/errors'
+
 /**
  * Lista de http status code suportados
  */
 type HttpStatusCode =
-
+    0 |
     200 |
     201 |
     204 |
@@ -17,7 +19,10 @@ type HttpStatusCode =
     403 |
     404 |
     408 |
-    500
+    500 |
+    503 |
+    504 |
+    508
 
 /**
  *  Lista de http message para os códigos suportados acima
@@ -27,12 +32,16 @@ type HttpMessage =
     'Created' |
     'No Content' |
     'Found' |
+    'Permanent Redirect' |
     'Bad Request' |
     'Unauthorized' |
     'Forbidden' |
     'Not Found' |
     'Request Timeout' |
-    'Internal Server Error'
+    'Internal Server Error' |
+    'Response timeout' |
+    'Gateway Timeout' |
+    'Service Unavailable'
 
 /**
  * Descreve Interface HttpStatus
@@ -61,6 +70,11 @@ export const noContent: HttpStatus = { status: 204, message: 'No Content' }
  *  HttpStatus Found
  */
 export const found: HttpStatus = { status: 302, message: 'Found' }
+
+/**
+ *  HttpStatus Permanent Redirect
+ */
+export const permanentRedirect: HttpStatus = { status: 302, message: 'Permanent Redirect' }
 
 /**
  * HttpStatus Bad Request
@@ -93,10 +107,25 @@ export const requestTimeout: HttpStatus = { status: 408, message: 'Request Timeo
 export const internalServerError: HttpStatus = { status: 500, message: 'Internal Server Error' }
 
 /**
+ * HttpStatus Response timeout Error
+ */
+export const responseTimeoutError: HttpStatus = { status: 503, message: 'Response timeout' }
+
+/**
+ * HttpStatus Gateway Timeout Error
+ */
+export const gatewayTimeoutError: HttpStatus = { status: 504, message: 'Gateway Timeout' }
+
+/**
+ * HttpStatus Internal Server Error
+ */
+export const serviceUnavailable: HttpStatus = { status: 508, message: 'Service Unavailable' }
+
+/**
  * Interface HttpStatusResponse
  */
 export interface HttpStatusResponse extends HttpStatus {
-    errors?: Error[]
+    errors?: AppError[]
 }
 
 /**
@@ -106,10 +135,10 @@ export interface HttpStatusResponse extends HttpStatus {
  * @param error 
  * @param message 
  */
-export const createHttpStatus = ( HttpStatus: HttpStatus, errors?: Error[], message?: string ) => {
+export const createHttpStatus = ( httpStatus: HttpStatus, message?: string, errors?: AppError[] ) => {
     const newError: HttpStatusResponse = {
-        status: HttpStatus.status,
-        message: message ? message : HttpStatus.message,
+        status: httpStatus.status,
+        message: message ? message : httpStatus.message,
         errors
     }
 
@@ -119,20 +148,21 @@ export const createHttpStatus = ( HttpStatus: HttpStatus, errors?: Error[], mess
 /**
  * Lista de Http Errors
  */
-const HttpStatussList = [
+const errorHttpStatusList = [
     badRequest,
     unauthorized,
     forbidden,
     notFound,
     requestTimeout,
     internalServerError,
+    responseTimeoutError,
+    gatewayTimeoutError,
+    serviceUnavailable
 ]
 
 /**
- * Verifica se existe um error conhecido, se nao retorna o padrão `internalServerError`
+ * Retorna erro com o código `HttpStatusCode`
  */
 export const findErrorByStatus = ( errorCode: HttpStatusCode ) => {
-    const HttpStatus = HttpStatussList.find( error => error.status === errorCode )
-    if ( !HttpStatus ) return internalServerError
-    return HttpStatus
+    return errorHttpStatusList.find( httpStatus => httpStatus.status === errorCode ) || internalServerError
 }

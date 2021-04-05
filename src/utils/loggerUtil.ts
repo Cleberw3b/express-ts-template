@@ -1,19 +1,46 @@
 import logger from 'morgan'
-import { LoggerType, Logger } from '../models/logger'
+import { LoggerType, Logger, SeverityType } from '../models/logger'
+import { ENABLE_LOG } from './consts'
+import { nowForPostgre, nowIsoDate } from './util'
 
-export const log = ( message: string, type: LoggerType ) => {
+/**
+ * Função responsável por criar e salvar logs
+ * 
+ * @param message 
+ * @param type 
+ * @param eventType 
+ */
+export const log = (
+    message: string,
+    type: LoggerType,
+    service: string = 'vpp-aviso',
+    severity: SeverityType = 'info'
+) => {
 
-    const isoDate = new Date().toISOString()
-    const timestamp = Date.now()
+    const timestamp = nowForPostgre()
 
-    const logger: Logger = {
-        type,
-        service: 'senha-vpp',
-        message,
-        timestamp,
-    }
+    const log: Logger = { type, severity, service, timestamp, message }
 
-    console.log( type.toUpperCase() + '-> ' + message )
+    if ( ENABLE_LOG ) printLogger( log )
+
+    // saveLog( log )
+
+}
+
+const loggerToString = ( log: Logger ) => {
+
+    const severity = log.severity.toUpperCase()
+    const time = nowIsoDate()
+    const type = log.type.toUpperCase()
+    const service = log.service
+    const message = log.message
+
+    return `${ severity } - ${ time } -  ${ type } - ${ service } - ${ message }`
+
+}
+
+export const printLogger = ( log: Logger ) => {
+    console.debug( loggerToString( log ) )
 }
 
 export { logger }

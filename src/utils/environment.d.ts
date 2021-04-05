@@ -1,3 +1,12 @@
+//
+//     Global interfaces
+//
+
+import { MongoClient } from "mongodb"
+
+/**
+ * Reescreve Interface `global.NodeJS.ProcessEnv`
+ */
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
@@ -8,6 +17,10 @@ declare global {
             MONGO_USER: string
             MONGO_PASSWORD: string
             MONGO_DB_NAME: string
+            ENABLE_LOG: string
+        }
+        interface Global {
+            connection: MongoClient
         }
     }
 }

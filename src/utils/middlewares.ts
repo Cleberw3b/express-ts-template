@@ -1,35 +1,33 @@
 import { Request, Response, NextFunction } from 'express'
-import { findErrorByStatus, HttpStatus, notFound, createHttpStatus, HttpStatusResponse } from './httpStatus'
+import { findErrorByStatus, notFound, createHttpStatus, HttpStatusResponse, serviceUnavailable } from './httpStatus'
 import { logger, log } from './loggerUtil'
 
 /**
- * Middleware to catch 404 and forward to error handler
+ * Middleware para capturar status 404 e criar error
  */
-export const notFountMiddleware = ( error: HttpStatus, req: Request, res: Response, next: NextFunction ) => {
+export const notFountMiddleware = ( req: Request, res: Response, next: NextFunction ) => {
     next( createHttpStatus( notFound ) )
 }
 
 /**
  * Exports middleware para tratar erros internos do servidor express
- * 
- * @remarks
- * Todos os parâmetros serão passados pelo próprio servidor express
- * 
- * @param error 
- * @param request 
- * @param response 
- * @param next 
  */
 export const errorMiddleware = ( error: HttpStatusResponse, req: Request, res: Response, next: NextFunction ) => {
+    if ( res.headersSent ) return
 
-    const status = error.status || 500
-    const message = error.message || 'Something went wrong'
+    res.statusMessage = error.message
 
-    if ( error.errors ) console.error( error.errors )
+    log( res.statusMessage, 'event', 'Error Middleware', 'error' )
 
-    return res
-        .status( status )
-        .send( createHttpStatus( findErrorByStatus( status ), undefined, message ) )
+    try {
+        return res
+            .status( error.status )
+            .send( createHttpStatus( findErrorByStatus( error.status ), error.message ) )
+
+    } catch ( error ) {
+        console.error( error.message )
+        log( error.message, 'event', 'Error Middleware', 'critical' )
+    }
 }
 
 /**
@@ -52,32 +50,25 @@ export const corsMiddleware = ( req: Request, res: Response, next: NextFunction 
 }
 
 /**
- * Middleware function to handle authorization
+ * Middleware to handle authorization
  */
-export const authMiddleware = ( req: Request, res: Response, next: NextFunction ) => {
-    // login does not require jwt verification
-    if ( req.path == '/login' ) {
-        // Call next middleware
-        return next()
-    }
-
+export const authMiddleware = async ( req: Request, res: Response, next: NextFunction ) => {
     // get token from request header Authorization
-    const token = req.headers.authorization
+    // const token = req.headers.authorization
 
-    try {
-        // Token verification
-
-        console.log( 'decoded' )
-    } catch ( err ) {
-        // Catch the JWT Expired or Invalid errors
-        return res.status( 401 ).json( { 'msg': err.message } )
-    }
+    // TODO
+    // Token verification
+    // Catch the JWT Expired or Invalid errors
+    // return res.status( 401 ).send( { msg: err.message } )
 
     // Call next middleware
     next()
 }
 
-export const loggerRequest = logger( ':remote-addr :url :method HTTP/:http-version', {
+/**
+ * Middleware para logar as requests
+ */
+export const loggerRequest = logger( 'from :remote-addr - :method :url HTTP/:http-version', {
     immediate: true,
     stream: {
         write: ( message: string ) => {
@@ -86,7 +77,10 @@ export const loggerRequest = logger( ':remote-addr :url :method HTTP/:http-versi
     }
 } )
 
-export const loggerResponse = logger( ':remote-addr :url :method :status :res[content-length] :response-time ms', {
+/**
+ * Middleware para logar os responses
+ */
+export const loggerResponse = logger( 'to :remote-addr - STATUS :status in :response-time ms', {
     stream: {
         write: ( message: string ) => {
             log( message.trim(), 'response' )

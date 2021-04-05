@@ -1,4 +1,6 @@
 import express from 'express'
+import helmet from 'helmet'
+import compression from 'compression'
 import { DEFAULT_PORT } from './utils/consts'
 import * as routers from './routers/routers'
 import { notFountMiddleware, errorMiddleware, loggerRequest, loggerResponse } from './utils/middlewares'
@@ -11,6 +13,12 @@ app.use( loggerRequest )
 
 // Middleware to log Response
 app.use( loggerResponse )
+
+// Middleware for security policies
+app.use( helmet() )
+
+// Middleware to compress
+app.use( compression() )
 
 // Middleware to parse data to Json
 app.use( express.json() )

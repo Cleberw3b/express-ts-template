@@ -1,13 +1,18 @@
-export type LoggerType = 'request' | 'response' | 'event' | 'info' | 'warn' | 'error'
+//
+//      Interface Client
+//
 
-export type SeverityType = 'attention' | 'critical'
+// Define quais os tipos de log
+export type LoggerType = 'request' | 'response' | 'event'
 
-export type ServiceType = 'client' | 'senha-vpp' | 'notification'
+// Define qual severidade do log
+export type SeverityType = 'info' | 'warn' | 'error' | 'critical'
 
+// Define interface Logger
 export interface Logger {
     type: LoggerType
-    severity?: SeverityType
-    service: ServiceType
-    timestamp: number
+    severity: SeverityType
+    service: string
+    timestamp: string
     message: string
 }

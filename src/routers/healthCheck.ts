@@ -1,14 +1,22 @@
-import express, { Request, Response, NextFunction } from 'express'
-const router = express.Router()
+//
+//      Rota Health Check
+//
+
+import { Router } from 'express'
+import { Request, Response, NextFunction } from 'express-serve-static-core'
+import { ok } from '../utils/httpStatus'
+const router = Router()
 
 /**
- * GET health check with application uptime. 
+ * GET -> verifica se o sistema está ativo respondendo com o tempo desde o último start 
  */
 router.get( '/', ( req: Request, res: Response, next: NextFunction ) => {
   res
-    .status( 200 )
-    .send( { uptime: process.uptime() } )
+    .status( ok.status )
+    .send( {
+      name: 'MY APP',
+      uptime: process.uptime()
+    } )
 } )
 
-export { router }
 export { router as healthCheckRouter }
